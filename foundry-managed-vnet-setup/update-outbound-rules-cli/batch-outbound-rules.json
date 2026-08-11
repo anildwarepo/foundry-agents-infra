@@ -34,6 +34,16 @@
           "sparkStatus": "Inactive"
         },
         "category": "UserDefined"
+      },
+      "acr-rule": {
+        "type": "PrivateEndpoint",
+        "destination": {
+          "serviceResourceId": "/subscriptions/e4718866-4e88-411f-a0b8-10c8051dc165/resourceGroups/aifoundry-hubs/providers/Microsoft.ContainerRegistry/registries/anildwapremacr",
+          "subresourceTarget": "registry",
+          "sparkEnabled": false,
+          "sparkStatus": "Inactive"
+        },
+        "category": "UserDefined"
       }
     },
     "managedNetworkKind": "V2"

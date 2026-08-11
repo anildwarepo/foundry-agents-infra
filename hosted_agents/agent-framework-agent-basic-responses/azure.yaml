@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+requiredVersions:
+    extensions:
+        azure.ai.agents: '>=0.1.0-preview'
+name: ai-foundry-starter-basic
+services:
+    agent-framework-agent-basic-responses:
+        project: src/agent-framework-agent-basic-responses
+        host: azure.ai.agent
+        language: python
+        config:
+            container:
+                resources:
+                    cpu: "0.5"
+                    memory: 1Gi
+            deployments:
+                - model:
+                    format: OpenAI
+                    name: gpt-5.4
+                    version: "2026-03-05"
+                  name: gpt-5.4
+                  sku:
+                    capacity: 10
+                    name: GlobalStandard
+infra:
+    provider: bicep
+    path: ./infra

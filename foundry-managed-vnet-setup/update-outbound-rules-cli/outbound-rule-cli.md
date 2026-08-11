@@ -58,6 +58,25 @@ az rest --method PUT --url 'https://management.azure.com/subscriptions/{sub-id}/
   }
 }'
 
+### Outbound Rule for Container Registry (ACR)
+
+Below is the CLI command to create an outbound rule from the managed VNET to your Azure Container Registry.
+
+az rest --method PUT --url 'https://management.azure.com/subscriptions/{sub-id}/resourceGroups/{rg-name}/providers/Microsoft.CognitiveServices/accounts/{foundry-account}/managedNetworks/default/outboundRules/test-rule?api-version=2025-10-01-preview' \
+--body '{
+  "id": "/subscriptions/{sub-id}/resourceGroups/{rg-name}/providers/Microsoft.CognitiveServices/accounts/{foundry-account}/managedNetworks/default/outboundRules/test-rule-acr",
+  "name": "test-rule-acr",
+  "type": "Microsoft.CognitiveServices/accounts/managedNetworks/outboundRules",
+  "properties": {
+    "type": "PrivateEndpoint",
+    "destination": {
+      "serviceResourceId": "/subscriptions/${acrSubscriptionId}/resourceGroups/${acrResourceGroupName}/providers/Microsoft.ContainerRegistry/registries/${acrName}",
+      "subresourceTarget": "registry"
+    },
+    "category": "UserDefined"
+  }
+}'
+
 # Batch Outbound Rules CLI
 
 This folder contains the JSON payload for creating batch outbound rules via Azure REST API. This allows youto create all the outbound PE rules in one go instead of the individual PE rules one at a time. 
@@ -77,6 +96,9 @@ Replace the placeholders in `batch-outbound-rules.json` with your actual values:
 - `{cosmosDBSubscriptionId}` - Cosmos DB subscription ID
 - `{cosmosDBResourceGroupName}` - Cosmos DB resource group
 - `{cosmosDBName}` - Cosmos DB account name
+- `{acrSubscriptionId}` - Container Registry subscription ID
+- `{acrResourceGroupName}` - Container Registry resource group
+- `{acrName}` - Container Registry name
 
 ## REST API Call
 

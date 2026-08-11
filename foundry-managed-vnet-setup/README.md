@@ -296,6 +296,23 @@ Private endpoints ensure secure, internal-only connectivity. Private endpoints a
     - Cosmos DB Built-in Data Contributor(`00000000-0000-0000-0000-000000000002`)
   - **Azure AI Foundry Resource**
     - Contributor (`b24988ac-6180-42a0-ab88-20f7382dd24c`) Required role for the Foundry account to accept all private endpoints created in the managed VNET. This role will be updated to the Azure AI Enterprise Network Connection Approver role which has a smaller scope. 
+
+To grant the currently signed-in Azure CLI user Cosmos DB data access, run:
+
+```powershell
+./assign-current-user-cosmos-role.ps1
+```
+
+The script uses the active azd environment's subscription and resource group and automatically selects the Cosmos DB account when the resource group contains exactly one. Specify the resource explicitly when needed:
+
+```powershell
+./assign-current-user-cosmos-role.ps1 `
+  -AccountName aiservices4dl3cosmosdb `
+  -ResourceGroup rg-foundrywestus `
+  -SubscriptionId e4718866-4e88-411f-a0b8-10c8051dc165
+```
+
+The operation is idempotent and assigns Cosmos DB Built-in Data Contributor at the account scope. It does not grant access to account keys.
 ---
 
 ## Module Structure
