@@ -78,12 +78,16 @@ azd auth login
 
 ## Python Agent Scripts
 
-The [`foundry_agents/`](foundry_agents/) folder contains scripts for creating and testing agents:
+The [`foundry_agents/`](foundry_agents/) folder contains scripts for creating, testing, and inspecting prompt agents and their managed long-term memory:
 
 | Script | Description |
 |---|---|
-| `create_simple_prompt_agent.py` | Auto-discovers Foundry project in a resource group and creates a simple prompt agent |
+| `create_simple_prompt_agent.py` | Creates a prompt agent with a managed Memory Store and per-user `{{$userId}}` scope |
 | `foundry_agent_thread_client.py` | Interactive chat client with conversation history via previous_response_id |
+| `list_agent_memory_scopes.py` | Lists the memory store and scope expression configured on every agent version; supports `--json` |
+| `memory_store_client.py` | REST client for Memory Store administration, update, search, and deletion operations |
+| `dump_memory_items.py` | Exports memory items for caller-supplied scopes |
+| `search_memories.py` | Searches a memory store for the signed-in user's scope |
 | `assign_cosmosdb_role.py` | Assigns Cosmos DB Built-in Data Contributor role to the current user |
 
 ```bash
@@ -91,7 +95,65 @@ cd foundry_agents
 pip install -r requirements.txt
 python create_simple_prompt_agent.py
 python foundry_agent_thread_client.py
+python list_agent_memory_scopes.py --resource-group <resource-group> --latest-only
 ```
+
+### Managed Memory Store API
+
+[Memory in Foundry Agent Service](https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/what-is-memory) is managed long-term memory. It is separate from the conversation/thread history persisted by a standard capability host in customer-managed Cosmos DB.
+
+The Python SDK exposes memory operations through `AIProjectClient.beta.memory_stores` (`azure-ai-projects>=2.3.0`):
+
+| Operation | Python method | Scope required? |
+|---|---|---|
+| List/get/create/update/delete stores | `list`, `get`, `create`, `update`, `delete` | No |
+| Extract and consolidate conversation memories | `begin_update_memories` | Yes |
+| Search relevant or static memories | `search_memories` | Yes |
+| List memory items | `list_memories` | Yes |
+| Create an item | `create_memory` | Yes |
+| Get/update/delete an item by memory ID | `get_memory`, `update_memory`, `delete_memory` | No scope argument; requires a known memory ID |
+| Delete all memories in one scope | `delete_scope` | Yes |
+
+Use `scope="{{$userId}}"` on a prompt agent's `MemorySearchPreviewTool` for per-user isolation. At response time, Foundry resolves it from the `x-memory-user-id` header when supplied; otherwise it derives the scope from the caller's Microsoft Entra identity. Low-level Memory Store API calls do not perform this identity resolution, so the caller must provide the concrete scope.
+
+> **Scope discovery limitation:** The agent definition exposes its configured expression, such as `{{$userId}}`, and `list_agent_memory_scopes.py` can enumerate that configuration across agent versions. The Memory Store API does not provide an operation to enumerate the concrete scope partitions that exist in a store. Applications that set `x-memory-user-id` should retain their own user-to-scope registry for administration, export, and deletion workflows.
+
+Memory Store documentation:
+
+- [Create and use memory](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/memory-usage)
+- [Memory concepts, limits, and availability](https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/what-is-memory)
+- [Python `BetaMemoryStoresOperations` API](https://learn.microsoft.com/en-us/python/api/azure-ai-projects/azure.ai.projects.operations.betamemorystoresoperations)
+
+---
+
+## Hosted Agents
+
+The [`hosted_agents/`](hosted_agents/) folder contains containerized agents that run in Foundry-managed, per-session sandboxes. Use hosted agents when you need custom Python/C# orchestration, your own framework, custom HTTP payloads, persistent session files, or protocols beyond a prompt agent definition.
+
+| Path | Description |
+|---|---|
+| [`hosted_agents/setup.md`](hosted_agents/setup.md) | End-to-end deployment and troubleshooting for hosted agents in a network-isolated project |
+| [`hosted_agents/create_hosted_agent.py`](hosted_agents/create_hosted_agent.py) | Creates a hosted-agent version from an ACR image |
+| [`hosted_agents/call_agent.py`](hosted_agents/call_agent.py) | Calls a deployed hosted agent |
+| [`hosted_agents/agent-framework-agent-basic-responses/`](hosted_agents/agent-framework-agent-basic-responses/) | Basic Microsoft Agent Framework agent using the Responses protocol |
+| [`hosted_agents/maf-backup-workflow/`](hosted_agents/maf-backup-workflow/) | Multi-agent backup workflow using the Invocations protocol and Foundry Toolbox |
+
+Hosted agents can expose one or more protocols:
+
+| Protocol | Use case | History/state ownership |
+|---|---|---|
+| Responses | Conversational agents and OpenAI-compatible clients | Foundry manages conversation history by conversation ID |
+| Invocations | Webhooks, arbitrary JSON, batch jobs, and custom SSE | Agent code manages conversational state; Foundry manages session lifecycle |
+| Invocations WebSocket | Real-time voice and bidirectional streaming | Agent-defined protocol and state behavior |
+
+Each hosted agent receives a dedicated endpoint and Microsoft Entra agent identity. The container runs in an isolated sandbox per session; `$HOME` and `/files` persist across idle/resume cycles. A hosted agent can call the Memory Store APIs from its own code, but it must retain or derive the concrete scope just like any other low-level API caller. The Memory Store API does not enumerate scope partitions for hosted agents either.
+
+Hosted-agent documentation:
+
+- [Hosted agents concepts](https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/hosted-agents)
+- [Quickstart: deploy a hosted agent](https://learn.microsoft.com/en-us/azure/foundry/agents/quickstarts/quickstart-hosted-agent)
+- [Deploy a hosted agent](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/deploy-hosted-agent)
+- [Manage hosted agents](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/manage-hosted-agent)
 
 ---
 
@@ -101,6 +163,8 @@ python foundry_agent_thread_client.py
 - [Environment setup guide](https://learn.microsoft.com/en-us/azure/foundry/agents/environment-setup)
 - [Standard agent setup](https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/standard-agent-setup)
 - [Capability hosts](https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/capability-hosts)
+- [Memory Store API](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/memory-usage)
+- [Hosted agents](https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/hosted-agents)
 - [Azure AI Projects Python SDK](https://learn.microsoft.com/en-us/python/api/overview/azure/ai-projects-readme)
 - [SDK samples](https://aka.ms/azsdk/azure-ai-projects-v2/python/samples/)
 - [Bicep templates (foundry-samples)](https://github.com/microsoft-foundry/foundry-samples/tree/main/infrastructure/infrastructure-setup-bicep)
