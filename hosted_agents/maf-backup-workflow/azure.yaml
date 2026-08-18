@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+requiredVersions:
+  extensions:
+    azure.ai.agents: '>=0.1.0-preview'
+name: maf-backup-workflow
+services:
+  maf-backup-policy-workflow:
+    project: src/maf-backup-policy-workflow
+    host: azure.ai.agent
+    language: python
+    uses:
+      - backup-discovery-tools
+    config:
+      container:
+        resources:
+          cpu: "1"
+          memory: 2Gi
+      deployments:
+        - model:
+            format: OpenAI
+            name: gpt-5.4
+            version: "2026-03-05"
+          name: gpt-5.4
+          sku:
+            capacity: 10
+            name: GlobalStandard
+  data-discovery-mcp:
+    project: src/data-discovery-mcp
+    host: containerapp
+    language: python
+    docker:
+      path: ./Dockerfile
+      context: .
+      platform: amd64
+      remoteBuild: true
+  backup-discovery-tools:
+    host: azure.ai.toolbox
+    env:
+      DATA_DISCOVERY_MCP_ENDPOINT: ${DATA_DISCOVERY_MCP_ENDPOINT}
+    description: Backup data discovery and resiliency inventory tools.
+    tools:
+      - type: mcp
+        server_label: backup_discovery
+        server_url: ${DATA_DISCOVERY_MCP_ENDPOINT}
+        require_approval: never
+infra:
+  provider: bicep
+  path: ./infra

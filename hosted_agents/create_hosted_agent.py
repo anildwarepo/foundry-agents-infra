@@ -4,6 +4,8 @@ from azure.identity import DefaultAzureCredential
 
 
 PROJECT_ENDPOINT = "https://aiservices7jz4.services.ai.azure.com/api/projects/project7jz4"
+AGENT_NAME = "maf-backup-policy-workflow"
+CONTAINER_IMAGE = "anildwapremacr.azurecr.io/maf-backup-policy-workflow:202608171500"
 
 # Create project client
 credential = DefaultAzureCredential()
@@ -15,18 +17,20 @@ project = AIProjectClient(
 
 # Create a hosted agent version
 agent = project.agents.create_version(
-    agent_name="agent-framework-agent-basic-responses",
+    agent_name=AGENT_NAME,
     definition=HostedAgentDefinition(
         protocol_versions=[
-            ProtocolVersionRecord(protocol=AgentProtocol.RESPONSES, version="1.0.0")
+            ProtocolVersionRecord(protocol=AgentProtocol.INVOCATIONS, version="2.0.0")
         ],
         cpu="1",
         memory="2Gi",
         container_configuration=ContainerConfiguration(
-            image="anildwapremacr.azurecr.io/agent-framework-agent-basic-responses:1.0"
+            image=CONTAINER_IMAGE
         ),
         environment_variables={
-            "AZURE_AI_MODEL_DEPLOYMENT_NAME": "gpt-5.4"
+            "AZURE_AI_MODEL_DEPLOYMENT_NAME": "gpt-5.4",
+            "TOOLBOX_NAME": "backup-discovery-tools",
+            "USE_FOUNDRY_TOOLBOX": "true",
         }
     )
 )

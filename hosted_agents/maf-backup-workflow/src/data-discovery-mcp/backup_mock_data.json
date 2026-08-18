@@ -1,0 +1,1054 @@
+{
+  "screen_1_select_source_platforms": [
+    {
+      "id": "1957046a",
+      "category": "Cloud Platform",
+      "name": "AWS",
+      "icon": "aws_icon",
+      "requires": {
+        "credentials": "AWS organisation/account credentials",
+        "template": "CloudFormation Template"
+      },
+      "selected": false
+    },
+    {
+      "id": "73c2692a",
+      "category": "Cloud Platform",
+      "name": "Azure",
+      "icon": "azure_icon",
+      "requires": {
+        "credentials": "Azure organisation/account credentials",
+        "template": "ARM Template"
+      },
+      "selected": false
+    },
+    {
+      "id": "c4dbaba7",
+      "category": "Cloud Platform",
+      "name": "GCP",
+      "icon": "gcp_icon",
+      "requires": {
+        "credentials": "GCP organisation/account credentials",
+        "template": "Terraform Template"
+      },
+      "selected": false
+    },
+    {
+      "id": "a6a19085",
+      "category": "SaaS Source",
+      "name": "Microsoft 365",
+      "icon": "microsoft_365_icon",
+      "requires": {
+        "credentials": "Microsoft 365 admin credentials",
+        "template": null
+      },
+      "selected": false
+    },
+    {
+      "id": "11835551",
+      "category": "SaaS Source",
+      "name": "Google Workspace",
+      "icon": "google_workspace_icon",
+      "requires": {
+        "credentials": "Google Workspace admin credentials",
+        "template": null
+      },
+      "selected": false
+    },
+    {
+      "id": "4e6b0f1b",
+      "category": "SaaS Source",
+      "name": "Others",
+      "icon": "others_icon",
+      "requires": {
+        "credentials": "Others admin credentials",
+        "template": null
+      },
+      "selected": true
+    }
+  ],
+  "screen_2_source_details": {
+    "source_type": "AWS Account",
+    "organization_id": "371052246567",
+    "platform": "AWS",
+    "import_options": {
+      "application_and_workload_discovery": true,
+      "import_existing_tags": true,
+      "import_resource_metadata": false,
+      "enable_identity_and_access_discovery": true
+    },
+    "powered_by": "CYERA"
+  },
+  "screen_3_data_discovered": {
+    "total_objects": 32648,
+    "applications_discovered": 6,
+    "classified_sensitive_data": {
+      "data_categories": {
+        "Personal": 78018,
+        "Financial": 126275,
+        "Business & IP": 70485,
+        "IT & Security": 24761,
+        "Health": 121164
+      },
+      "data_context": {
+        "types": [
+          "Audit logs",
+          "Trade secrets"
+        ],
+        "region": "US",
+        "identifiability": "Pseudonymized"
+      },
+      "file_extensions": {
+        "PDF": 1722,
+        "parquet": 40,
+        "json": 1994
+      },
+      "exposure": {
+        "Confidential": 58896,
+        "Internal": 133930,
+        "Public": 97194
+      },
+      "access": {
+        "agents": 1,
+        "users": 94
+      }
+    },
+    "next_steps": [
+      {
+        "step": 1,
+        "title": "Enable SmartProtect",
+        "description": "Protect data based on compliance requirements and business needs"
+      },
+      {
+        "step": 2,
+        "title": "Enable Always-On Threat Monitoring",
+        "description": "Scan every snapshot for IoCs using YARA rules and HASH matches"
+      },
+      {
+        "step": 3,
+        "title": "Setup Application Resilience Orchestration",
+        "description": "Configure automated recovery workflows for applications"
+      }
+    ]
+  },
+  "screen_4_smartprotect_rules": [
+    {
+      "id": "3de7042c",
+      "rule_name": "SmartProtect-IT-Security-Confidential",
+      "priority": "P1",
+      "conditions": {
+        "data_class": "IT & Security",
+        "data_sensitivity": "Confidential",
+        "exposure": "Internal"
+      },
+      "assigned_policy": "Bronze",
+      "enabled": false,
+      "objects_matched": 4773
+    },
+    {
+      "id": "88fb7ebc",
+      "rule_name": "SmartProtect-IT-Security-Restricted",
+      "priority": "P2",
+      "conditions": {
+        "data_class": "IT & Security",
+        "data_sensitivity": "Restricted",
+        "exposure": "Confidential"
+      },
+      "assigned_policy": "Silver",
+      "enabled": true,
+      "objects_matched": 3666
+    },
+    {
+      "id": "9fdf97a8",
+      "rule_name": "SmartProtect-Personal-Confidential",
+      "priority": "P3",
+      "conditions": {
+        "data_class": "Personal",
+        "data_sensitivity": "Confidential",
+        "exposure": "Public"
+      },
+      "assigned_policy": "Bronze",
+      "enabled": true,
+      "objects_matched": 921
+    },
+    {
+      "id": "4390cea7",
+      "rule_name": "SmartProtect-Health-Restricted",
+      "priority": "P4",
+      "conditions": {
+        "data_class": "Health",
+        "data_sensitivity": "Restricted",
+        "exposure": "Public"
+      },
+      "assigned_policy": "Diamond",
+      "enabled": true,
+      "objects_matched": 1031
+    },
+    {
+      "id": "17bcabb5",
+      "rule_name": "SmartProtect-Health-Confidential",
+      "priority": "P5",
+      "conditions": {
+        "data_class": "Health",
+        "data_sensitivity": "Confidential",
+        "exposure": "Confidential"
+      },
+      "assigned_policy": "Gold",
+      "enabled": true,
+      "objects_matched": 3953
+    }
+  ],
+  "screen_5_threat_monitoring_config": {
+    "threat_monitoring": {
+      "enabled": true,
+      "scan_engine": "YARA + HASH",
+      "libraries": [
+        "GTI",
+        "RedLab",
+        "CrowdStrike Intel"
+      ],
+      "scan_frequency": "Every 6 hours",
+      "alerting": {
+        "channels": [
+          "Teams"
+        ],
+        "severity_threshold": "Critical"
+      },
+      "ioc_detection_target_minutes": 15
+    },
+    "resilience_orchestration": {
+      "enabled": true,
+      "auto_containment": true,
+      "cleanroom_provider": "On-Premises",
+      "evidence_preservation": true,
+      "chain_of_custody": true
+    }
+  },
+  "screen_6_inventory_and_copilot": {
+    "inventory": {
+      "organization": "Minimum Viable Company",
+      "source_id": "Azure-SubscriptionID-20387136734",
+      "resiliency_coverage": {
+        "protection": 69,
+        "cyber_orchestration": 26,
+        "recoverability": 42,
+        "data_classification": 53,
+        "threat_monitoring": 65
+      },
+      "application_groups": [
+        "checkout-app",
+        "billing-invoice-app",
+        "customer-data-app",
+        "fraud-detection-app"
+      ],
+      "objects": [
+        {
+          "id": "461d6e2c",
+          "object_name": "vm-andromeda-04",
+          "application_group": "checkout-app",
+          "sla": "Platinum",
+          "protection_status": "Unprotected",
+          "data_classes": "Business & IP",
+          "data_sensitivity": "Confidential",
+          "source_platform": "AWS",
+          "region": "ap-northeast-1",
+          "last_backup": null,
+          "backup_size_gb": 137.88
+        },
+        {
+          "id": "68ab7e95",
+          "object_name": "vm-pegasus-08",
+          "application_group": "checkout-app",
+          "sla": "Gold",
+          "protection_status": "Unprotected",
+          "data_classes": "Health",
+          "data_sensitivity": "Public",
+          "source_platform": "AWS",
+          "region": "ap-northeast-1",
+          "last_backup": null,
+          "backup_size_gb": 51.7
+        },
+        {
+          "id": "b204b0d6",
+          "object_name": "storage-atlas-10",
+          "application_group": "checkout-app",
+          "sla": "None",
+          "protection_status": "Unprotected",
+          "data_classes": "Personal",
+          "data_sensitivity": "Public",
+          "source_platform": "AWS",
+          "region": "ap-southeast-1",
+          "last_backup": null,
+          "backup_size_gb": 211.25
+        },
+        {
+          "id": "b94caee3",
+          "object_name": "storage-android-02",
+          "application_group": "checkout-app",
+          "sla": "Platinum",
+          "protection_status": "Unprotected",
+          "data_classes": "Personal",
+          "data_sensitivity": "Public",
+          "source_platform": "AWS",
+          "region": "us-west-2",
+          "last_backup": null,
+          "backup_size_gb": 116.71
+        },
+        {
+          "id": "f455ccb7",
+          "object_name": "db-perseus-09",
+          "application_group": "checkout-app",
+          "sla": "None",
+          "protection_status": "Unprotected",
+          "data_classes": "Business & IP",
+          "data_sensitivity": "Confidential",
+          "source_platform": "AWS",
+          "region": "ap-southeast-1",
+          "last_backup": null,
+          "backup_size_gb": 99.82
+        },
+        {
+          "id": "e4a4ba68",
+          "object_name": "db-arachnid-01",
+          "application_group": "checkout-app",
+          "sla": "None",
+          "protection_status": "Unprotected",
+          "data_classes": "Health",
+          "data_sensitivity": "Restricted",
+          "source_platform": "Azure",
+          "region": "us-west-2",
+          "last_backup": null,
+          "backup_size_gb": 224.88
+        },
+        {
+          "id": "85c3f964",
+          "object_name": "vm-rigel-21",
+          "application_group": "billing-invoice-app",
+          "sla": "Bronze",
+          "protection_status": "Protected",
+          "data_classes": "Business & IP",
+          "data_sensitivity": "Internal",
+          "source_platform": "AWS",
+          "region": "eu-west-1",
+          "last_backup": null,
+          "backup_size_gb": 190.27
+        },
+        {
+          "id": "832c4ce5",
+          "object_name": "storage-cosmos-78",
+          "application_group": "billing-invoice-app",
+          "sla": "Silver",
+          "protection_status": "Unprotected",
+          "data_classes": "IT & Security",
+          "data_sensitivity": "Confidential",
+          "source_platform": "Azure",
+          "region": "us-east-1",
+          "last_backup": "2026-04-17T14:48:02.492346",
+          "backup_size_gb": 288.89
+        },
+        {
+          "id": "bdfb73a4",
+          "object_name": "db-arachnid-06",
+          "application_group": "billing-invoice-app",
+          "sla": "Gold",
+          "protection_status": "Protected",
+          "data_classes": "Personal",
+          "data_sensitivity": "Internal",
+          "source_platform": "AWS",
+          "region": "eu-central-1",
+          "last_backup": null,
+          "backup_size_gb": 318.02
+        },
+        {
+          "id": "d86b855b",
+          "object_name": "storage-nova-48",
+          "application_group": "billing-invoice-app",
+          "sla": "Silver",
+          "protection_status": "Unprotected",
+          "data_classes": "Business & IP",
+          "data_sensitivity": "Confidential",
+          "source_platform": "GCP",
+          "region": "ap-northeast-1",
+          "last_backup": null,
+          "backup_size_gb": 364.7
+        },
+        {
+          "id": "32619f67",
+          "object_name": "vm-titan-49",
+          "application_group": "billing-invoice-app",
+          "sla": "Silver",
+          "protection_status": "Partially Protected",
+          "data_classes": "Health",
+          "data_sensitivity": "Internal",
+          "source_platform": "GCP",
+          "region": "eu-west-1",
+          "last_backup": "2026-04-19T05:48:02.492519",
+          "backup_size_gb": 114.91
+        },
+        {
+          "id": "f6e62c8f",
+          "object_name": "vm-rigel-41",
+          "application_group": "billing-invoice-app",
+          "sla": "Bronze",
+          "protection_status": "Protected",
+          "data_classes": "Personal",
+          "data_sensitivity": "Internal",
+          "source_platform": "GCP",
+          "region": "ap-northeast-1",
+          "last_backup": "2026-04-16T21:48:02.492552",
+          "backup_size_gb": 198.12
+        },
+        {
+          "id": "c646a7c1",
+          "object_name": "db-ares-19",
+          "application_group": "billing-invoice-app",
+          "sla": "Silver",
+          "protection_status": "Unprotected",
+          "data_classes": "Financial",
+          "data_sensitivity": "Public",
+          "source_platform": "GCP",
+          "region": "ap-southeast-1",
+          "last_backup": "2026-04-17T09:48:02.492569",
+          "backup_size_gb": 181.32
+        },
+        {
+          "id": "227a569b",
+          "object_name": "db-ares-12",
+          "application_group": "customer-data-app",
+          "sla": "Platinum",
+          "protection_status": "Unprotected",
+          "data_classes": "Financial",
+          "data_sensitivity": "Internal",
+          "source_platform": "GCP",
+          "region": "eu-central-1",
+          "last_backup": "2026-04-17T11:48:02.492590",
+          "backup_size_gb": 191.12
+        },
+        {
+          "id": "4d44fcb7",
+          "object_name": "storage-lunar-33",
+          "application_group": "customer-data-app",
+          "sla": "None",
+          "protection_status": "Unprotected",
+          "data_classes": "Personal",
+          "data_sensitivity": "Public",
+          "source_platform": "GCP",
+          "region": "eu-west-1",
+          "last_backup": null,
+          "backup_size_gb": 217.67
+        },
+        {
+          "id": "ed152402",
+          "object_name": "storage-atlas-93",
+          "application_group": "customer-data-app",
+          "sla": "Silver",
+          "protection_status": "Partially Protected",
+          "data_classes": "Financial",
+          "data_sensitivity": "Confidential",
+          "source_platform": "GCP",
+          "region": "eu-west-1",
+          "last_backup": "2026-04-16T20:48:02.492618",
+          "backup_size_gb": 304.68
+        },
+        {
+          "id": "03fdd607",
+          "object_name": "vm-hydra-98",
+          "application_group": "customer-data-app",
+          "sla": "Gold",
+          "protection_status": "Partially Protected",
+          "data_classes": "Health",
+          "data_sensitivity": "Confidential",
+          "source_platform": "GCP",
+          "region": "eu-west-1",
+          "last_backup": "2026-04-18T22:48:02.492637",
+          "backup_size_gb": 464.58
+        },
+        {
+          "id": "b510d820",
+          "object_name": "storage-quasar-08",
+          "application_group": "customer-data-app",
+          "sla": "Gold",
+          "protection_status": "Partially Protected",
+          "data_classes": "Personal",
+          "data_sensitivity": "Confidential",
+          "source_platform": "GCP",
+          "region": "eu-central-1",
+          "last_backup": "2026-04-16T16:48:02.492655",
+          "backup_size_gb": 383.03
+        },
+        {
+          "id": "9eeb462f",
+          "object_name": "db-ares-71",
+          "application_group": "fraud-detection-app",
+          "sla": "Gold",
+          "protection_status": "Protected",
+          "data_classes": "Health",
+          "data_sensitivity": "Restricted",
+          "source_platform": "AWS",
+          "region": "ap-southeast-1",
+          "last_backup": "2026-04-18T11:48:02.492672",
+          "backup_size_gb": 356.62
+        },
+        {
+          "id": "320c13cb",
+          "object_name": "storage-zenith-84",
+          "application_group": "fraud-detection-app",
+          "sla": "Silver",
+          "protection_status": "Protected",
+          "data_classes": "Health",
+          "data_sensitivity": "Restricted",
+          "source_platform": "AWS",
+          "region": "us-west-2",
+          "last_backup": null,
+          "backup_size_gb": 169.37
+        },
+        {
+          "id": "563a8f28",
+          "object_name": "db-poseidon-30",
+          "application_group": "fraud-detection-app",
+          "sla": "None",
+          "protection_status": "Unprotected",
+          "data_classes": "Personal",
+          "data_sensitivity": "Confidential",
+          "source_platform": "GCP",
+          "region": "ap-northeast-1",
+          "last_backup": null,
+          "backup_size_gb": 34.17
+        },
+        {
+          "id": "d5d8f1c9",
+          "object_name": "vm-hydra-10",
+          "application_group": "fraud-detection-app",
+          "sla": "None",
+          "protection_status": "Unprotected",
+          "data_classes": "Business & IP",
+          "data_sensitivity": "Restricted",
+          "source_platform": "AWS",
+          "region": "ap-southeast-1",
+          "last_backup": null,
+          "backup_size_gb": 467.79
+        },
+        {
+          "id": "c3de8c08",
+          "object_name": "db-zeus-61",
+          "application_group": "fraud-detection-app",
+          "sla": "Gold",
+          "protection_status": "Protected",
+          "data_classes": "IT & Security",
+          "data_sensitivity": "Internal",
+          "source_platform": "AWS",
+          "region": "us-east-1",
+          "last_backup": "2026-04-17T15:48:02.492724",
+          "backup_size_gb": 212.08
+        }
+      ],
+      "filters": {
+        "unclassified_objects": true,
+        "sla": [
+          "Platinum",
+          "Gold",
+          "Silver",
+          "Bronze",
+          "None"
+        ],
+        "protection": [
+          "Unprotected",
+          "Protected",
+          "Partially Protected"
+        ],
+        "data_classes": [
+          "Personal",
+          "Financial",
+          "Business & IP",
+          "IT & Security",
+          "Health"
+        ]
+      }
+    },
+    "resiliency_plan": {
+      "application": "checkout-app",
+      "generated_at": "2026-04-19T13:48:02.492984",
+      "key_highlights": [
+        {
+          "area": "Protection Policy",
+          "summary": "Multi-tier approach following a 3-2-1 style strategy, continuous backups, real-time replication (RPO < 1 min), and immutable air-gapped copies in FortKnox."
+        },
+        {
+          "area": "Threat Monitoring",
+          "summary": "Defense-in-depth monitoring using YARA rules, sub-10-minute detection targets with on-backup monitoring and HASH matches."
+        },
+        {
+          "area": "Cyber Recoverability",
+          "summary": "Automated containment in cleanroom, evidence preservation with chain of custody, and specific recovery time objectives for different attack scenarios."
+        }
+      ],
+      "suggested_actions": {
+        "protection_policy": {
+          "backup_frequency": "Every 2h",
+          "retention_days": 30,
+          "replicate": "Every run",
+          "vault": "Every run"
+        },
+        "threat_monitoring": {
+          "scan_frequency": "Every snapshot",
+          "libraries": [
+            "GTI",
+            "RedLab"
+          ]
+        },
+        "cyber_recoverability": {
+          "blueprints": [
+            "Scheduled-Rehearsal-Blueprint",
+            "Cleanroom-Blueprint"
+          ]
+        }
+      },
+      "confirmation_status": null
+    }
+  },
+  "screen_7_protection_policy_detail": {
+    "rule_name": "3-2-1 Protection",
+    "condition": {
+      "application": "checkout-app",
+      "data_sensitivity": "Confidential"
+    },
+    "policy_tier": "Gold",
+    "replication_chain": [
+      {
+        "tier": "Primary",
+        "target": "Cluster-NYC",
+        "backup_frequency": "Every 2 hours",
+        "retention": "38 days"
+      },
+      {
+        "tier": "Secondary",
+        "target": "Cluster-SFO",
+        "replication": "Every run",
+        "retention": "3 months"
+      },
+      {
+        "tier": "Tertiary (Vault)",
+        "target": "us-east-1",
+        "vault": "Every run",
+        "retention": "5 years"
+      }
+    ],
+    "allow_condition": "Azure-SubscriptionID-20387136734"
+  },
+  "screen_8_cyber_recoverability": {
+    "core_blueprints": [
+      {
+        "id": "c142cb13",
+        "blueprint_name": "Scheduled-Rehearsal-Blueprint",
+        "workflow_steps": [
+          {
+            "step": 1,
+            "name": "Rehearsal",
+            "type": "action"
+          },
+          {
+            "step": 2,
+            "name": "Pause",
+            "type": "gate"
+          },
+          {
+            "step": 3,
+            "name": "Script",
+            "type": "action"
+          },
+          {
+            "step": 4,
+            "name": "Teardown",
+            "type": "action"
+          }
+        ],
+        "frequency": "Monthly",
+        "last_run": "2026-04-17T13:48:02.493009",
+        "last_run_status": "warning"
+      },
+      {
+        "id": "0d172ce0",
+        "blueprint_name": "Cleanroom-Blueprint-Threat-Scan",
+        "workflow_steps": [
+          {
+            "step": 1,
+            "name": "Threat Scan",
+            "type": "action"
+          },
+          {
+            "step": 2,
+            "name": "Cleanroom Creation",
+            "type": "action"
+          },
+          {
+            "step": 3,
+            "name": "Pause",
+            "type": "gate"
+          },
+          {
+            "step": 4,
+            "name": "Script",
+            "type": "action"
+          },
+          {
+            "step": 5,
+            "name": "Recovery",
+            "type": "action"
+          }
+        ],
+        "frequency": "On-Demand",
+        "last_run": "2026-04-18T13:48:02.493041",
+        "last_run_status": "in-progress"
+      }
+    ],
+    "additional_blueprints": [
+      {
+        "id": "315997bb",
+        "blueprint_name": "Data-Migration-Blueprint",
+        "workflow_steps": [
+          {
+            "step": 1,
+            "name": "Source Snapshot",
+            "type": "action"
+          },
+          {
+            "step": 2,
+            "name": "Transfer",
+            "type": "action"
+          },
+          {
+            "step": 3,
+            "name": "Integrity Check",
+            "type": "action"
+          },
+          {
+            "step": 4,
+            "name": "Cutover",
+            "type": "action"
+          },
+          {
+            "step": 5,
+            "name": "Cleanup",
+            "type": "action"
+          }
+        ],
+        "frequency": "On-Demand",
+        "last_run": "2026-03-16T13:48:02.493071",
+        "last_run_status": "success"
+      },
+      {
+        "id": "6bd9c62f",
+        "blueprint_name": "DR-Failover-Blueprint",
+        "workflow_steps": [
+          {
+            "step": 1,
+            "name": "Health Check",
+            "type": "action"
+          },
+          {
+            "step": 2,
+            "name": "DNS Failover",
+            "type": "action"
+          },
+          {
+            "step": 3,
+            "name": "Service Start",
+            "type": "action"
+          },
+          {
+            "step": 4,
+            "name": "Validation",
+            "type": "action"
+          },
+          {
+            "step": 5,
+            "name": "Notification",
+            "type": "action"
+          }
+        ],
+        "frequency": "Semi-Annual",
+        "last_run": "2026-01-23T13:48:02.493086",
+        "last_run_status": "warning"
+      }
+    ]
+  },
+  "screen_9_incident_control_room": {
+    "incident": {
+      "id": "8cfdf3a1",
+      "alert": "SOC Alert \u2014 Ransomware activity detected on internal systems.",
+      "severity": "Critical",
+      "detected_at": "2026-04-19T07:48:02.493137"
+    },
+    "response_stages": [
+      {
+        "stage": 1,
+        "name": "Initialise Threat Scan",
+        "description": "Retrieve vaulted backups and perform threat scan",
+        "total": 4,
+        "completed": 4,
+        "status": "Completed"
+      },
+      {
+        "stage": 2,
+        "name": "Restore to Isolated Cleanroom",
+        "description": "Use blueprints to transfer backups to preconfigured cleanroom",
+        "total": 4,
+        "completed": 3,
+        "in_progress": 1,
+        "status": "In Progress"
+      }
+    ],
+    "application_status": {
+      "objects_of_interest": 25,
+      "applications_orchestrated": 4,
+      "orchestration_status": "In Progress"
+    },
+    "applications": [
+      {
+        "application_name": "checkout-app",
+        "num_objects": 8,
+        "blueprint_progress": {
+          "total": 4,
+          "completed": 3,
+          "in_progress": 1,
+          "not_started": 0,
+          "percentage": 80
+        },
+        "desired_rto": "3h",
+        "rto_status": "RTO Met",
+        "last_5_runs": [
+          "warning",
+          "failure",
+          "warning",
+          "in-progress",
+          "failure"
+        ]
+      },
+      {
+        "application_name": "billing-invoice-app",
+        "num_objects": 9,
+        "blueprint_progress": {
+          "total": 4,
+          "completed": 1,
+          "in_progress": 1,
+          "not_started": 2,
+          "percentage": 33
+        },
+        "desired_rto": "1h",
+        "rto_status": "RTO At Risk",
+        "last_5_runs": [
+          "warning",
+          "in-progress",
+          "warning",
+          "success",
+          "success"
+        ]
+      },
+      {
+        "application_name": "customer-data-app",
+        "num_objects": 7,
+        "blueprint_progress": {
+          "total": 4,
+          "completed": 4,
+          "in_progress": 0,
+          "not_started": 0,
+          "percentage": 100
+        },
+        "desired_rto": "1h",
+        "rto_status": "RTO Met",
+        "last_5_runs": [
+          "in-progress",
+          "skipped",
+          "skipped",
+          "success",
+          "success"
+        ]
+      },
+      {
+        "application_name": "fraud-detection-app",
+        "num_objects": 3,
+        "blueprint_progress": {
+          "total": 4,
+          "completed": 4,
+          "in_progress": 0,
+          "not_started": 0,
+          "percentage": 100
+        },
+        "desired_rto": "10m",
+        "rto_status": "RTO Met",
+        "last_5_runs": [
+          "skipped",
+          "failure",
+          "skipped",
+          "warning",
+          "failure"
+        ]
+      }
+    ],
+    "copilot_activity": {
+      "message": "Performing forensic analysis in cleanroom for 25 anomalous objects using 4 blueprints",
+      "blueprint_in_progress": "BP_AnomalousAssets_inQuarantineLab",
+      "recovered_objects": [
+        {
+          "object_name": "vm-andromeda-04",
+          "status": "recovered",
+          "recovered_to": "cleanroom-QuarantineLab"
+        },
+        {
+          "object_name": "vm-pegasus-08",
+          "status": "recovered",
+          "recovered_to": "cleanroom-QuarantineLab"
+        }
+      ]
+    }
+  },
+  "screen_10_protection_rules": [
+    {
+      "id": "fc45742b",
+      "rule_priority": "P1",
+      "rule_name": "Business-IP-Internal-Protection",
+      "conditions": {
+        "agent_type": "AWS Bedrock",
+        "data_sensitivity_type": "Internal",
+        "data_categories": "Business & IP"
+      },
+      "raw_expression": "Agent Type is \"AWS Bedrock\" AND Data Sensitivity Type is \"Internal\" AND Data Categories is \"Business & IP\"",
+      "policy": {
+        "name": "Bronze",
+        "backup_frequency": "Every 2 hours",
+        "retention_days": 60,
+        "datalock_days": 30
+      },
+      "enable_now": true
+    },
+    {
+      "id": "5895401c",
+      "rule_priority": "P2",
+      "rule_name": "Financial-Confidential-Protection",
+      "conditions": {
+        "agent_type": "Google Vertex",
+        "data_sensitivity_type": "Confidential",
+        "data_categories": "Financial"
+      },
+      "raw_expression": "Agent Type is \"Google Vertex\" AND Data Sensitivity Type is \"Confidential\" AND Data Categories is \"Financial\"",
+      "policy": {
+        "name": "Bronze",
+        "backup_frequency": "Everyday",
+        "retention_days": 7,
+        "datalock_days": 14
+      },
+      "enable_now": false
+    },
+    {
+      "id": "39d743e1",
+      "rule_priority": "P3",
+      "rule_name": "Business-IP-Internal-Protection",
+      "conditions": {
+        "agent_type": "Google Vertex",
+        "data_sensitivity_type": "Internal",
+        "data_categories": "Business & IP"
+      },
+      "raw_expression": "Agent Type is \"Google Vertex\" AND Data Sensitivity Type is \"Internal\" AND Data Categories is \"Business & IP\"",
+      "policy": {
+        "name": "Silver",
+        "backup_frequency": "Every 4 hours",
+        "retention_days": 90,
+        "datalock_days": 60
+      },
+      "enable_now": false
+    },
+    {
+      "id": "edf90fe2",
+      "rule_priority": "P4",
+      "rule_name": "IT-Security-Confidential-Protection",
+      "conditions": {
+        "agent_type": "AWS Bedrock",
+        "data_sensitivity_type": "Confidential",
+        "data_categories": "IT & Security"
+      },
+      "raw_expression": "Agent Type is \"AWS Bedrock\" AND Data Sensitivity Type is \"Confidential\" AND Data Categories is \"IT & Security\"",
+      "policy": {
+        "name": "Bronze",
+        "backup_frequency": "Everyday",
+        "retention_days": 7,
+        "datalock_days": 30
+      },
+      "enable_now": true
+    },
+    {
+      "id": "257aa49e",
+      "rule_priority": "P5",
+      "rule_name": "IT-Security-Internal-Protection",
+      "conditions": {
+        "agent_type": "Google Vertex",
+        "data_sensitivity_type": "Internal",
+        "data_categories": "IT & Security"
+      },
+      "raw_expression": "Agent Type is \"Google Vertex\" AND Data Sensitivity Type is \"Internal\" AND Data Categories is \"IT & Security\"",
+      "policy": {
+        "name": "Diamond",
+        "backup_frequency": "Every 12 hours",
+        "retention_days": 90,
+        "datalock_days": 7
+      },
+      "enable_now": true
+    }
+  ],
+  "backup_policies": [
+    {
+      "id": "8b654ca5",
+      "policy_name": "Platinum",
+      "backup_frequency": "Every 1 hour",
+      "retention_days": 90,
+      "datalock_days": 90,
+      "replicate_every_run": true,
+      "vault_every_run": true,
+      "immutable": true,
+      "description": "Backup Every 1 hour \u00b7 Retain 90 days \u00b7 DataLock 90 days"
+    },
+    {
+      "id": "d85a0ff3",
+      "policy_name": "Gold",
+      "backup_frequency": "Every 2 hours",
+      "retention_days": 30,
+      "datalock_days": 14,
+      "replicate_every_run": true,
+      "vault_every_run": true,
+      "immutable": true,
+      "description": "Backup Every 2 hours \u00b7 Retain 30 days \u00b7 DataLock 14 days"
+    },
+    {
+      "id": "d107c713",
+      "policy_name": "Silver",
+      "backup_frequency": "Every 4 hours",
+      "retention_days": 14,
+      "datalock_days": 7,
+      "replicate_every_run": true,
+      "vault_every_run": false,
+      "immutable": true,
+      "description": "Backup Every 4 hours \u00b7 Retain 14 days \u00b7 DataLock 7 days"
+    },
+    {
+      "id": "4bf5db3d",
+      "policy_name": "Bronze",
+      "backup_frequency": "Every 12 hours",
+      "retention_days": 7,
+      "datalock_days": 7,
+      "replicate_every_run": false,
+      "vault_every_run": false,
+      "immutable": true,
+      "description": "Backup Every 12 hours \u00b7 Retain 7 days \u00b7 DataLock 7 days"
+    },
+    {
+      "id": "3cf3f558",
+      "policy_name": "Diamond",
+      "backup_frequency": "Every 30 minutes",
+      "retention_days": 180,
+      "datalock_days": 180,
+      "replicate_every_run": true,
+      "vault_every_run": true,
+      "immutable": true,
+      "description": "Backup Every 30 minutes \u00b7 Retain 180 days \u00b7 DataLock 180 days"
+    }
+  ]
+}

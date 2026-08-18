@@ -1,4 +1,4 @@
-azure-ai-projects
+azure-ai-projects>=2.3.0
 azure-identity
 azure-mgmt-cognitiveservices
 azure-mgmt-resource

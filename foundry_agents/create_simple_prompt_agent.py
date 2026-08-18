@@ -7,7 +7,8 @@ Usage:
 The script will:
   1. Prompt for a resource group name (or use FOUNDRY_RESOURCE_GROUP env var)
   2. Auto-discover the Foundry account and project in that resource group
-  3. Create a simple prompt agent with no tools
+    3. Create or reuse a managed memory store
+    4. Create a prompt agent with per-user long-term memory
 """
 
 import os
@@ -15,13 +16,22 @@ import sys
 
 import requests
 from azure.ai.projects import AIProjectClient
-from azure.ai.projects.models import PromptAgentDefinition
+from azure.ai.projects.models import (
+    MemorySearchPreviewTool,
+    MemoryStoreDefaultDefinition,
+    MemoryStoreDefaultOptions,
+    PromptAgentDefinition,
+)
+from azure.core.exceptions import ResourceNotFoundError
 from azure.identity import DefaultAzureCredential
 from azure.mgmt.cognitiveservices import CognitiveServicesManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from dotenv import load_dotenv
 
 load_dotenv()
+
+DEFAULT_AGENT_MODEL = "gpt-5.4"
+DEFAULT_EMBEDDING_MODEL = "text-embedding-3-small"
 
 
 def get_subscription_id(credential) -> str:
@@ -83,6 +93,40 @@ def discover_foundry_project(credential, subscription_id: str, resource_group: s
     return account_name, project_name
 
 
+def get_or_create_memory_store(
+    client: AIProjectClient,
+    memory_store_name: str,
+    chat_model: str,
+    embedding_model: str,
+):
+    """Get an existing memory store or create one for this agent."""
+    try:
+        memory_store = client.beta.memory_stores.get(name=memory_store_name)
+        print(f"Using existing memory store: {memory_store.name}")
+        return memory_store
+    except ResourceNotFoundError:
+        pass
+
+    memory_store = client.beta.memory_stores.create(
+        name=memory_store_name,
+        definition=MemoryStoreDefaultDefinition(
+            chat_model=chat_model,
+            embedding_model=embedding_model,
+            options=MemoryStoreDefaultOptions(
+                chat_summary_enabled=True,
+                user_profile_enabled=True,
+                user_profile_details=(
+                    "Store useful user preferences and stable context. Avoid credentials, "
+                    "financial information, precise location, and other sensitive data."
+                ),
+            ),
+        ),
+        description=f"Long-term memory for the {memory_store_name.removesuffix('-memory')} agent",
+    )
+    print(f"Created memory store: {memory_store.name}")
+    return memory_store
+
+
 def main():
     credential = DefaultAzureCredential()
 
@@ -104,6 +148,15 @@ def main():
     # 4. Get agent name
     agent_name = input("Enter a name for the agent [simple-prompt-agent]: ").strip() or "simple-prompt-agent"
 
+    model_name = os.getenv("MEMORY_STORE_CHAT_MODEL_DEPLOYMENT_NAME", DEFAULT_AGENT_MODEL).strip()
+    embedding_model = os.getenv("MEMORY_STORE_EMBEDDING_MODEL_DEPLOYMENT_NAME", "").strip()
+    if not embedding_model:
+        embedding_model = (
+            input(f"Enter the embedding model deployment name [{DEFAULT_EMBEDDING_MODEL}]: ").strip()
+            or DEFAULT_EMBEDDING_MODEL
+        )
+    memory_store_name = os.getenv("MEMORY_STORE_NAME", f"{agent_name}-memory").strip()
+
     # 5. Confirm before creating
     endpoint = f"https://{account_name}.services.ai.azure.com/api/projects/{project_name}"
     print(f"\nReady to create agent:")
@@ -111,7 +164,9 @@ def main():
     print(f"  Account:        {account_name}")
     print(f"  Project:        {project_name}")
     print(f"  Agent Name:     {agent_name}")
-    print(f"  Model:          gpt-4.1-mini")
+    print(f"  Model:          {model_name}")
+    print(f"  Memory Store:   {memory_store_name}")
+    print(f"  Embedding Model:{embedding_model}")
     print(f"  Endpoint:       {endpoint}")
     confirm = input("\nProceed? (y/N): ").strip().lower()
     if confirm != "y":
@@ -124,6 +179,13 @@ def main():
     client = AIProjectClient(
         endpoint=endpoint,
         credential=credential,
+    )
+
+    memory_store = get_or_create_memory_store(
+        client,
+        memory_store_name,
+        model_name,
+        embedding_model,
     )
 
     # Delete existing agent version if it exists
@@ -141,17 +203,26 @@ def main():
     agent = client.agents.create_version(
         agent_name=agent_name,
         definition=PromptAgentDefinition(
-            model="gpt-4.1-mini",
+            model=model_name,
             instructions="""You are a helpful assistant. 
 Answer questions clearly and concisely. 
+Use relevant memories to personalize responses when appropriate.
+Honor explicit requests to remember or forget information.
 If you don't know the answer, say so honestly.""",
-            tools=[],
+            tools=[
+                MemorySearchPreviewTool(
+                    memory_store_name=memory_store.name,
+                    scope="{{$userId}}",
+                    update_delay=300,
+                )
+            ],
         ),
     )
     print(f"\nAgent created successfully!")
     print(f"  Name:    {agent.name}")
     print(f"  ID:      {agent.id}")
     print(f"  Version: {agent.version}")
+    print(f"  Memory:  {memory_store.name} (per-user scope)")
     print(f"\nEndpoint:  {endpoint}")
 
 

@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/AgentSchema/refs/heads/main/schemas/v1.0/ContainerAgent.yaml
+
+kind: hosted
+name: maf-backup-policy-workflow
+description: Human-in-the-loop backup policy and resiliency workflow.
+metadata:
+  tags:
+    - Agent Framework
+    - Human in the Loop
+    - Invocations
+    - Foundry Toolbox
+protocols:
+  - protocol: invocations
+    version: 2.0.0
+resources:
+  cpu: "1"
+  memory: 2Gi
+environment_variables:
+  - name: AZURE_AI_MODEL_DEPLOYMENT_NAME
+    value: gpt-5.4
+  - name: TOOLBOX_NAME
+    value: backup-discovery-tools
+  - name: USE_FOUNDRY_TOOLBOX
+    value: "true"
+code_configuration:
+  runtime: python_3_12
+  entry_point: hosted_agent.py
+  dependency_resolution: remote_build
